@@ -3,8 +3,8 @@ from pathlib import Path
 import mlflow
 import mlflow.keras
 from urllib.parse import urlparse
-from cnnClassifier.entity.config_entity import EvaluateConfig
-from cnnClassifier.utils.common import read_yaml, create_directories,save_json
+from src.cnnClassifier.entity.config_entity import EvaluateConfig
+from src.cnnClassifier.utils.common import read_yaml, create_directories,save_json
 
 
 class Evaluation:
@@ -49,19 +49,23 @@ class Evaluation:
         self.save_score()
 
     def save_score(self):
-        scores = {"loss": self.score[0], "accuracy": self.score[1]}
+        if isinstance(self.score, (list, tuple)):
+            scores = {"loss": self.score[0], "accuracy": self.score[1]}
+        else:
+            scores = {"loss": self.score, "accuracy": self.score}
         save_json(path=Path("scores.json"), data=scores)
 
     
     def log_into_mlflow(self):
-        mlflow.set_registry_uri(self.config.mlflow_uri)
         tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
         
         with mlflow.start_run():
             mlflow.log_params(self.config.all_params)
-            mlflow.log_metrics(
-                {"loss": self.score[0], "accuracy": self.score[1]}
-            )
+            if isinstance(self.score, (list, tuple)):
+                metrics = {"loss": float(self.score[0]), "accuracy": float(self.score[1])}
+            else:
+                metrics = {"loss": float(self.score), "accuracy": float(self.score)}
+            mlflow.log_metrics(metrics)
             # Model registry does not work with file store
             if tracking_url_type_store != "file":
 

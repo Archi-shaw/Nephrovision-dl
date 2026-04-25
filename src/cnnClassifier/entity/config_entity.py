@@ -21,7 +21,7 @@ class PrepareBaseModelConfig:
     params_classes: int
 
 @dataclass(frozen=True)
-class TrainingConig:
+class TrainingConfig:
     root_dir: Path
     trained_model_path: Path
     updated_base_model_path: Path
@@ -30,6 +30,7 @@ class TrainingConig:
     params_batch_size: int
     params_epochs: int
     params_is_argumentation: bool
+    params_learning_rate: float  
 
 
 @dataclass(frozen=True)
