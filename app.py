@@ -19,13 +19,14 @@ class ClientApp:
         self.classifier = PredictionPipeline(self.filename)
 
 
-@app.route("/", methods=['GET'])
-@cross_origin()
+app = Flask(__name__)
+CORS(app)
+
+clApp = ClientApp()
+
+@app.route("/")
 def home():
-    return render_template('index.html')
-
-
-
+    return render_template("index.html")
 
 @app.route("/train", methods=['GET','POST'])
 @cross_origin()
@@ -34,19 +35,15 @@ def trainRoute():
     # os.system("dvc repro")
     return "Training done successfully!"
 
-
-
-@app.route("/predict", methods=['POST'])
-@cross_origin()
+@app.route("/predict", methods=["POST"])
 def predictRoute():
-    image = request.json['image']
+    image = request.json.get("image")
     decodebase64(image, clApp.filename)
     result = clApp.classifier.predict()
     return jsonify(result)
 
 
 if __name__ == "__main__":
-    clApp = ClientApp()
+    app.run(host="0.0.0.0", port=8080, debug=True)
 
-    app.run(host='0.0.0.0', port=8080) #for AWS
-
+  

@@ -140,7 +140,11 @@ def encode_image_to_base64(imgstring,filename):
 
 
 @ensure_annotations
-def decodebase64(imagepath):
-    with open(imagepath, 'rb') as f:
-        return  base64.b64encode(f.read())
-        
+def decodebase64(imgstring, filename):
+    """
+    Converts base64 string to image file
+    """
+    imgdata = base64.b64decode(imgstring)
+
+    with open(filename, "wb") as f:
+        f.write(imgdata)
